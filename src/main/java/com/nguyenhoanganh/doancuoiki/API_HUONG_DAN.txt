@@ -1,0 +1,257 @@
+================================================================================
+                    HƯỚNG DẪN SỬ DỤNG API - DOAN CUOI KI
+================================================================================
+
+BASE URL: http://localhost:8080/api/v2
+
+Lưu ý: Thay thế localhost:8080 bằng địa chỉ IP hoặc domain của server nếu chạy trên máy khác.
+
+================================================================================
+1. QUẢN LÝ THIẾT BỊ (DEVICES)
+================================================================================
+
+1.1. Lấy danh sách tất cả thiết bị
+    Method: GET
+    URL: /api/v2/devices
+    Mô tả: Lấy danh sách tất cả các thiết bị đã đăng ký trong hệ thống
+    
+    Ví dụ: http://localhost:8080/api/v2/devices
+
+
+1.2. Tạo thiết bị mới
+    Method: POST
+    URL: /api/v2/devices
+    Mô tả: Đăng ký một thiết bị mới vào hệ thống
+    Body (JSON):
+    {
+        "name": "Tên thiết bị",
+        "topic": "/topic/qos0"
+    }
+    
+    Ví dụ: http://localhost:8080/api/v2/devices
+    Body: {"name": "Cảm biến phòng khách", "topic": "/topic/qos0"}
+
+
+1.3. Điều khiển thiết bị
+    Method: POST
+    URL: /api/v2/devices/{id}/control
+    Mô tả: Gửi lệnh điều khiển đến thiết bị thông qua MQTT
+    Tham số: {id} - ID của thiết bị (số nguyên)
+    Body: Chuỗi lệnh điều khiển (ví dụ: "1" để bật, "0" để tắt)
+    
+    Ví dụ: http://localhost:8080/api/v2/devices/1/control
+    Body: "1"  (để bật relay)
+    Body: "0"  (để tắt relay)
+
+
+================================================================================
+2. TRUY VẤN DỮ LIỆU TELEMETRY
+================================================================================
+
+2.1. Lấy tất cả dữ liệu của một thiết bị
+    Method: GET
+    URL: /api/v2/telemetry/{deviceId}
+    Mô tả: Lấy tất cả dữ liệu đo được của thiết bị, sắp xếp từ mới nhất
+    Tham số: {deviceId} - ID của thiết bị (số nguyên)
+    
+    Ví dụ: http://localhost:8080/api/v2/telemetry/1
+
+
+2.2. Lấy dữ liệu mới nhất của thiết bị
+    Method: GET
+    URL: /api/v2/telemetry/{deviceId}/latest
+    Mô tả: Lấy bản ghi dữ liệu mới nhất của thiết bị
+    Tham số: {deviceId} - ID của thiết bị (số nguyên)
+    
+    Ví dụ: http://localhost:8080/api/v2/telemetry/1/latest
+
+
+2.3. Lấy dữ liệu theo khoảng thời gian
+    Method: GET
+    URL: /api/v2/telemetry/{deviceId}/range
+    Mô tả: Lấy dữ liệu trong khoảng thời gian cụ thể
+    Tham số: 
+        - {deviceId} - ID của thiết bị (số nguyên)
+        - start - Thời gian bắt đầu (định dạng: 2026-01-06T00:00:00)
+        - end - Thời gian kết thúc (định dạng: 2026-01-06T23:59:59)
+    
+    Ví dụ: http://localhost:8080/api/v2/telemetry/1/range?start=2026-01-06T00:00:00&end=2026-01-06T23:59:59
+
+
+2.4. Lấy dữ liệu gần đây
+    Method: GET
+    URL: /api/v2/telemetry/{deviceId}/recent
+    Mô tả: Lấy dữ liệu trong N giờ gần đây
+    Tham số: 
+        - {deviceId} - ID của thiết bị (số nguyên)
+        - hours - Số giờ gần đây (mặc định: 24 giờ)
+    
+    Ví dụ: http://localhost:8080/api/v2/telemetry/1/recent
+    Ví dụ: http://localhost:8080/api/v2/telemetry/1/recent?hours=12
+
+
+2.5. Lọc dữ liệu theo nhiệt độ
+    Method: GET
+    URL: /api/v2/telemetry/{deviceId}/temperature
+    Mô tả: Lấy dữ liệu có nhiệt độ trong khoảng chỉ định
+    Tham số: 
+        - {deviceId} - ID của thiết bị (số nguyên)
+        - minTemp - Nhiệt độ tối thiểu (số thập phân)
+        - maxTemp - Nhiệt độ tối đa (số thập phân)
+    
+    Ví dụ: http://localhost:8080/api/v2/telemetry/1/temperature?minTemp=25.0&maxTemp=35.0
+
+
+2.6. Lọc dữ liệu theo độ ẩm
+    Method: GET
+    URL: /api/v2/telemetry/{deviceId}/humidity
+    Mô tả: Lấy dữ liệu có độ ẩm trong khoảng chỉ định
+    Tham số: 
+        - {deviceId} - ID của thiết bị (số nguyên)
+        - minHumidity - Độ ẩm tối thiểu (số thập phân)
+        - maxHumidity - Độ ẩm tối đa (số thập phân)
+    
+    Ví dụ: http://localhost:8080/api/v2/telemetry/1/humidity?minHumidity=60.0&maxHumidity=80.0
+
+
+2.7. Lọc dữ liệu theo công suất
+    Method: GET
+    URL: /api/v2/telemetry/{deviceId}/power
+    Mô tả: Lấy dữ liệu có công suất lớn hơn hoặc bằng giá trị chỉ định
+    Tham số: 
+        - {deviceId} - ID của thiết bị (số nguyên)
+        - minPower - Công suất tối thiểu (số thập phân)
+    
+    Ví dụ: http://localhost:8080/api/v2/telemetry/1/power?minPower=10.0
+
+
+2.8. Gửi dữ liệu telemetry
+    Method: POST
+    URL: /api/v2/telemetry
+    Mô tả: Gửi dữ liệu telemetry mới (sẽ được publish lên MQTT)
+    Body (JSON):
+    {
+        "deviceId": 1,
+        "payload": "{\"relay\":0,\"V\":208.3,\"A\":0.000,\"W\":0.0,\"T\":31.6,\"H\":74.1}"
+    }
+    
+    Ví dụ: http://localhost:8080/api/v2/telemetry
+
+
+================================================================================
+3. CẤU TRÚC DỮ LIỆU TRẢ VỀ
+================================================================================
+
+Khi gọi API, dữ liệu trả về có cấu trúc như sau:
+
+Telemetry Object:
+{
+    "id": 1,                          // ID bản ghi
+    "deviceId": 1,                    // ID thiết bị
+    "payload": "{...}",               // Dữ liệu JSON gốc
+    "voltage": 208.3,                 // Điện áp (V)
+    "current": 0.000,                  // Dòng điện (A)
+    "power": 0.0,                     // Công suất (W)
+    "temperature": 31.6,               // Nhiệt độ (°C)
+    "humidity": 74.1,                  // Độ ẩm (%)
+    "relay": 0,                        // Trạng thái relay (0 hoặc 1)
+    "timestamp": "2026-01-06T10:30:00" // Thời gian ghi nhận
+}
+
+Device Object:
+{
+    "id": 1,                          // ID thiết bị
+    "name": "Tên thiết bị",           // Tên thiết bị
+    "topic": "/topic/qos0"            // MQTT topic
+}
+
+
+================================================================================
+4. ĐỊNH DẠNG THỜI GIAN
+================================================================================
+
+Khi sử dụng API lọc theo thời gian, định dạng thời gian phải là:
+YYYY-MM-DDTHH:mm:ss
+
+Ví dụ:
+- 2026-01-06T00:00:00  (00:00:00 ngày 06/01/2026)
+- 2026-01-06T23:59:59  (23:59:59 ngày 06/01/2026)
+- 2026-01-06T10:30:00  (10:30:00 ngày 06/01/2026)
+
+
+================================================================================
+5. CẤU TRÚC JSON TỪ ESP32
+================================================================================
+
+ESP32 gửi dữ liệu lên topic /test/info với định dạng:
+{
+    "relay": 0,      // Trạng thái relay (0 = tắt, 1 = bật)
+    "V": 208.3,      // Điện áp (Volt)
+    "A": 0.000,      // Dòng điện (Ampere)
+    "W": 0.0,        // Công suất (Watt)
+    "T": 31.6,       // Nhiệt độ (Celsius)
+    "H": 74.1        // Độ ẩm (%)
+}
+
+
+================================================================================
+6. TOPIC MQTT
+================================================================================
+
+- Topic nhận dữ liệu từ ESP32: /test/info
+- Topic điều khiển thiết bị: /topic/qos0
+
+
+================================================================================
+7. VÍ DỤ SỬ DỤNG THỰC TẾ
+================================================================================
+
+7.1. Lấy dữ liệu nhiệt độ cao (trên 30°C) trong 24 giờ qua:
+    GET /api/v2/telemetry/1/temperature?minTemp=30.0&maxTemp=50.0
+
+7.2. Kiểm tra dữ liệu mới nhất của thiết bị:
+    GET /api/v2/telemetry/1/latest
+
+7.3. Lấy dữ liệu từ 8h sáng đến 8h tối hôm nay:
+    GET /api/v2/telemetry/1/range?start=2026-01-06T08:00:00&end=2026-01-06T20:00:00
+
+7.4. Bật relay của thiết bị ID 1:
+    POST /api/v2/devices/1/control
+    Body: "1"
+
+7.5. Tắt relay của thiết bị ID 1:
+    POST /api/v2/devices/1/control
+    Body: "0"
+
+
+================================================================================
+8. LƯU Ý QUAN TRỌNG
+================================================================================
+
+- Tất cả API đều trả về dữ liệu dạng JSON
+- Khi gửi POST request, nhớ set header: Content-Type: application/json
+- Thay {deviceId} và {id} bằng số thực tế (ví dụ: 1, 2, 3...)
+- Server mặc định chạy trên port 8080
+- Dữ liệu được lưu tự động khi ESP32 gửi lên topic /test/info
+- Có thể sử dụng Postman, curl, hoặc bất kỳ HTTP client nào để gọi API
+
+
+================================================================================
+                                    HẾT
+================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
